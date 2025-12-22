@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Food & Stories</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>Countries</h2>
+      <ul id="countryList">
+        <li data-region="USA">USA</li>
+        <li data-region="India">India</li>
+        <li data-region="Italy">Italy</li>
+        <li data-region="France">France</li>
+        <li data-region="Japan">Japan</li>
+        <li data-region="China">China</li>
+        <li data-region="Mexico">Mexico</li>
+        <li data-region="Brazil">Brazil</li>
+        <li data-region="Germany">Germany</li>
+        <li data-region="Spain">Spain</li>
+        <li data-region="Thailand">Thailand</li>
+        <li data-region="Turkey">Turkey</li>
+        <li data-region="UK">UK</li>
+        <li data-region="Canada">Canada</li>
+        <li data-region="Australia">Australia</li>
+      </ul>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <header>
+        <h1>Food & Stories</h1>
+        <p>Recipes, memories, and moments — served fresh.</p>
+      </header>
+
+      <section class="form-section" aria-labelledby="share">
+        <h2 id="share">Share a story or recipe</h2>
+        <form id="postForm">
+          <input type="text" name="title" placeholder="Title" required />
+          <input type="text" name="author" placeholder="Your name" />
+          <input type="file" id="imageFile" name="imageFile" accept="image/*" />
+          <textarea name="body" placeholder="Write your story or recipe..." required></textarea>
+          <button type="submit">Post</button>
+        </form>
+      </section>
+
+      <section class="posts" id="posts">
+        <!-- Posts will load here -->
+      </section>
+    </main>
+
+    <!-- Butterfly animation container -->
+    <div id="butterflies"></div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
+

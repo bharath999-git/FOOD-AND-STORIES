@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food & Stories - Post</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+
+    <main class="main-content">
+      <header>
+        <h1 id="postTitle">Loading...</h1>
+        <p id="postRegion"></p>
+      </header>
+
+      <section class="post-detail">
+        <img id="postImage" src="" alt="Post image">
+        <p id="postContent"></p>
+        <div class="actions">
+          <button class="edit" id="editBtn">Edit</button>
+          <button class="delete" id="deleteBtn">Delete</button>
+        </div>
+      </section>
+
+      <button onclick="window.history.back()" style="margin-top:20px; padding:8px 12px; border:none; border-radius:6px; cursor:pointer; background-color:#333; color:white;">Back to Home</button>
+    </main>
+
+    <!-- Butterfly animation container -->
+    <div id="butterflies"></div>
+  </div>
+
+  <script>
+    const API = "http://localhost:5000/api/posts";
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
+
+    const titleEl = document.getElementById("postTitle");
+    const regionEl = document.getElementById("postRegion");
+    const contentEl = document.getElementById("postContent");
+    const imageEl = document.getElementById("postImage");
+    const editBtn = document.getElementById("editBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+    const mainContent = document.querySelector(".main-content");
+
+    // distinct colors per country
+    const countryColors = {
+      "USA": "#1E90FF",
+      "India": "#FF8C00",
+      "Italy": "#32CD32",
+      "France": "#8A2BE2",
+      "Japan": "#FF1493",
+      "China": "#DC143C",
+      "Mexico": "#228B22",
+      "Brazil": "#FFD700",
+      "Germany": "#FF4500",
+      "Spain": "#FF6347",
+      "Thailand": "#00CED1",
+      "Turkey": "#FF69B4",
+      "UK": "#7B68EE",
+      "Canada": "#FF0000",
+      "Australia": "#20B2AA"
+    };
+
+    async function loadPost() {
+      if(!postId) return;
+      const res = await fetch(`${API}/${postId}`);
+      const post = await res.json();
+
+      titleEl.textContent = post.title;
+      regionEl.textContent = post.region;
+      contentEl.textContent = post.content;
+
+      if(post.media){
+        imageEl.src = `http://localhost:5000${post.media}`;
+        imageEl.style.display = "block";
+      } else {
+        imageEl.style.display = "none";
+      }
+
+      mainContent.style.backgroundColor = countryColors[post.region] || "#ff6b3c";
+
+      editBtn.onclick = async () => {
+        const newTitle = prompt("Edit title:", post.title);
+        const newContent = prompt("Edit content:", post.content);
+        const newRegion = prompt("Edit region:", post.region);
+        if(!newTitle || !newContent || !newRegion) return;
+        await fetch(`${API}/${post._id}`, {
+          method:"PUT",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({title:newTitle, content:newContent, region:newRegion})
+        });
+        loadPost();
+      };
+
+      deleteBtn.onclick = async () => {
+        if(!confirm("Are you sure you want to delete this post?")) return;
+        await fetch(`${API}/${post._id}`, { method:"DELETE" });
+        alert("Post deleted");
+        window.history.back();
+      };
+    }
+
+    loadPost();
+
+    // butterfly animation
+    function createButterfly(){
+      const butterfly = document.createElement("div");
+      butterfly.className = "butterfly";
+      butterfly.style.left = Math.random()*window.innerWidth + "px";
+      butterfly.style.backgroundColor = `hsl(${Math.random()*360}, 80%, 60%)`;
+      butterfly.style.animation = `floatButterfly ${5 + Math.random()*5}s linear infinite`;
+      document.getElementById("butterflies").appendChild(butterfly);
+      setTimeout(()=>{ butterfly.remove(); }, 10000);
+    }
+    setInterval(createButterfly, 500);
+  </script>
+</body>
+</html>
+
+
+
