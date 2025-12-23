@@ -1,64 +1,72 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Food & Stories</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food & Stories - Share Your Culinary Journey</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <div class="container">
-
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <h2>Countries</h2>
-      <ul id="countryList">
-        <li data-region="USA">USA</li>
-        <li data-region="India">India</li>
-        <li data-region="Italy">Italy</li>
-        <li data-region="France">France</li>
-        <li data-region="Japan">Japan</li>
-        <li data-region="China">China</li>
-        <li data-region="Mexico">Mexico</li>
-        <li data-region="Brazil">Brazil</li>
-        <li data-region="Germany">Germany</li>
-        <li data-region="Spain">Spain</li>
-        <li data-region="Thailand">Thailand</li>
-        <li data-region="Turkey">Turkey</li>
-        <li data-region="UK">UK</li>
-        <li data-region="Canada">Canada</li>
-        <li data-region="Australia">Australia</li>
-      </ul>
-    </aside>
-
-    <!-- Main content -->
-    <main class="main-content">
-      <header>
-        <h1>Food & Stories</h1>
-        <p>Recipes, memories, and moments — served fresh.</p>
-      </header>
-
-      <section class="form-section" aria-labelledby="share">
-        <h2 id="share">Share a story or recipe</h2>
-        <form id="postForm">
-          <input type="text" name="title" placeholder="Title" required />
-          <input type="text" name="author" placeholder="Your name" />
-          <input type="file" id="imageFile" name="imageFile" accept="image/*" />
-          <textarea name="body" placeholder="Write your story or recipe..." required></textarea>
-          <button type="submit">Post</button>
-        </form>
-      </section>
-
-      <section class="posts" id="posts">
-        <!-- Posts will load here -->
-      </section>
-    </main>
-
-    <!-- Butterfly animation container -->
-    <div id="butterflies"></div>
+  
+  <div class="app">
+    <!-- Sidebar with countries -->
+    <div class="sidebar"></div>
+    
+    <!-- Main content area -->
+    <div class="main">
+      
+      <!-- Header with greeting -->
+      <div class="header"></div>
+      
+      <!-- Post creation form (3D card) -->
+      <form id="postForm" class="post-form">
+        <input 
+          type="text" 
+          name="title" 
+          placeholder="📝 Title of your food story..." 
+          required
+        >
+        
+        <input 
+          type="text" 
+          name="author" 
+          placeholder="👤 Your name (or stay anonymous)" 
+        >
+        
+        <textarea 
+          name="content" 
+          placeholder="✍️ Share your culinary experience, recipe, or food memory..." 
+          required
+        ></textarea>
+        
+        <input 
+          type="file" 
+          name="media" 
+          accept="image/*,video/*"
+        >
+        
+        <button type="submit">🚀 Share Your Story</button>
+      </form>
+      
+      <!-- Posts grid for current country -->
+      <div class="posts-section">
+        <h2>✨ Featured Stories</h2>
+        <div class="posts"></div>
+      </div>
+      
+      <!-- All posts section at bottom -->
+      <div class="all-posts-section">
+        <h2>🌍 All Food Stories</h2>
+        <div class="all-posts posts"></div>
+      </div>
+      
+    </div>
   </div>
-
+  
+  <!-- Scripts -->
+  <script src="js/countries.js"></script>
+  <script src="js/theme.js"></script>
   <script src="js/app.js"></script>
+  
 </body>
 </html>
-

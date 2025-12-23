@@ -1,108 +1,208 @@
 const API = "http://localhost:5000/api/posts";
-const postsEl = document.getElementById("posts");
-const countryList = document.getElementById("countryList");
-let selectedRegion = null;
+let currentCountry = "india";
+let allPosts = [];
 
-// distinct colors per country
-const countryColors = {
-  "USA": "#1E90FF",
-  "India": "#FF8C00",
-  "Italy": "#32CD32",
-  "France": "#8A2BE2",
-  "Japan": "#FF1493",
-  "China": "#DC143C",
-  "Mexico": "#228B22",
-  "Brazil": "#FFD700",
-  "Germany": "#FF4500",
-  "Spain": "#FF6347",
-  "Thailand": "#00CED1",
-  "Turkey": "#FF69B4",
-  "UK": "#7B68EE",
-  "Canada": "#FF0000",
-  "Australia": "#20B2AA"
-};
+const main = document.querySelector(".main");
+const header = document.querySelector(".header");
+const sidebar = document.querySelector(".sidebar");
+const postsEl = document.querySelector(".posts");
+const allPostsEl = document.querySelector(".all-posts");
 
-// Load posts
+// ============================================
+// RENDER SIDEBAR
+// ============================================
+
+function renderSidebar() {
+  sidebar.innerHTML = `
+    <div class="sidebar-header">
+      <h2>🍽️ Food & Stories</h2>
+      <p>Explore Global Cuisines</p>
+    </div>
+  `;
+
+  Object.keys(COUNTRIES).forEach(key => {
+    const c = COUNTRIES[key];
+    const div = document.createElement("div");
+    div.className = "country";
+    div.innerHTML = `${c.emoji} ${c.name}`;
+    div.style.color = c.color;
+    div.style.borderColor = c.color;
+    
+    if (key === currentCountry) {
+      div.classList.add('active');
+    }
+    
+    div.onclick = () => selectCountry(key);
+    sidebar.appendChild(div);
+  });
+}
+
+// ============================================
+// SELECT COUNTRY
+// ============================================
+
+function selectCountry(key) {
+  currentCountry = key;
+  const c = COUNTRIES[key];
+  
+  // Update active state in sidebar
+  document.querySelectorAll('.country').forEach(el => el.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Update main background and color
+  main.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url(${c.overlay})`;
+  main.style.setProperty('color', c.color);
+  sidebar.style.backgroundColor = c.color + '15'; // 15 is opacity in hex
+  
+  // Update header with greeting
+  header.innerHTML = `
+    <h1>${c.greeting} ${c.emoji}</h1>
+    <p>Welcome to the food culture of ${c.name}</p>
+  `;
+  
+  // Set form button color
+  const formBtn = document.querySelector('.post-form button');
+  if (formBtn) {
+    formBtn.style.background = `linear-gradient(135deg, ${c.color}, ${c.color}dd)`;
+  }
+  
+  // Load posts for this country
+  loadPosts();
+}
+
+// ============================================
+// LOAD POSTS
+// ============================================
+
 async function loadPosts() {
-  const res = await fetch(API);
-  let posts = await res.json();
-  if (selectedRegion) posts = posts.filter(p => p.region === selectedRegion);
-  postsEl.innerHTML = "";
-  posts.forEach(p => {
-    postsEl.innerHTML += `
-      <div class="card">
-        ${p.media ? `<img src="http://localhost:5000${p.media}">` : ""}
-        <h3>${p.title}</h3>
-        <p class="region">${p.region}</p>
-        <p class="content">${p.content}</p>
-        <div class="actions">
-          <button class="edit" onclick="editPost('${p._id}', '${p.title}', \`${p.content}\`, '${p.region}')">Edit</button>
-          <button class="delete" onclick="deletePost('${p._id}')">Delete</button>
+  try {
+    const res = await fetch(API);
+    allPosts = await res.json();
+    
+    // Filter posts for current country
+    const countryPosts = allPosts.filter(p => p.region === currentCountry);
+    
+    // Render country-specific posts
+    postsEl.innerHTML = "";
+    if (countryPosts.length === 0) {
+      postsEl.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: white;">
+          <h3 style="font-size: 32px; margin-bottom: 15px;">No posts yet from ${COUNTRIES[currentCountry].name}</h3>
+          <p style="font-size: 18px; opacity: 0.8;">Be the first to share a food story!</p>
         </div>
+      `;
+    } else {
+      countryPosts.forEach(p => {
+        postsEl.innerHTML += createPostCard(p);
+      });
+    }
+    
+    // Render all posts in bottom section
+    renderAllPosts();
+    
+  } catch (err) {
+    console.error("Error loading posts:", err);
+    postsEl.innerHTML = `<p style="color: white; text-align: center;">Error loading posts. Make sure backend is running!</p>`;
+  }
+}
+
+// ============================================
+// CREATE POST CARD HTML
+// ============================================
+
+function createPostCard(post) {
+  const country = COUNTRIES[post.region];
+  const cardColor = country ? country.color : '#667eea';
+  
+  return `
+    <div class="card" style="border-top: 4px solid ${cardColor};">
+      ${post.media ? `<img src="http://localhost:5000${post.media}" alt="${post.title}">` : `<div style="height: 250px; background: linear-gradient(135deg, ${cardColor}40, ${cardColor}20);"></div>`}
+      <div class="content">
+        <h3>${post.title}</h3>
+        <div class="author">By ${post.author} • ${country ? country.emoji + ' ' + country.name : post.region}</div>
+        <p>${post.content}</p>
+        <a href="post.html?id=${post._id}" style="background: ${cardColor};">Read Full Story →</a>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================
+// RENDER ALL POSTS SECTION
+// ============================================
+
+function renderAllPosts() {
+  if (!allPostsEl) return;
+  
+  allPostsEl.innerHTML = "";
+  
+  if (allPosts.length === 0) {
+    allPostsEl.innerHTML = `
+      <div style="text-align: center; padding: 60px; color: var(--text-secondary);">
+        <h3 style="font-size: 28px; margin-bottom: 10px;">No posts yet</h3>
+        <p>Start sharing your food stories!</p>
       </div>
     `;
+    return;
+  }
+  
+  allPosts.forEach(p => {
+    allPostsEl.innerHTML += createPostCard(p);
   });
 }
 
-// Submit post
-document.getElementById("postForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  formData.append("content", formData.get("body"));
-  formData.append("region", selectedRegion || "General");
-  await fetch(API, { method:"POST", body: formData });
-  e.target.reset();
-  loadPosts();
-});
+// ============================================
+// POST FORM SUBMISSION
+// ============================================
 
-// Edit post
-async function editPost(id, oldTitle, oldContent, oldRegion) {
-  const newTitle = prompt("Edit title:", oldTitle);
-  const newContent = prompt("Edit content:", oldContent);
-  const newRegion = prompt("Edit region:", oldRegion);
-  if(!newTitle || !newContent || !newRegion) return;
-  await fetch(`${API}/${id}`, {
-    method:"PUT",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({title:newTitle, content:newContent, region:newRegion})
-  });
-  loadPosts();
+const postForm = document.getElementById("postForm");
+if (postForm) {
+  postForm.onsubmit = async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    formData.append("region", currentCountry);
+    
+    // Show loading state
+    const submitBtn = e.target.querySelector('button');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Posting...";
+    submitBtn.disabled = true;
+    
+    try {
+      const response = await fetch(API, { 
+        method: "POST", 
+        body: formData 
+      });
+      
+      if (response.ok) {
+        e.target.reset();
+        await loadPosts();
+        alert(`✅ Your post has been published to ${COUNTRIES[currentCountry].name}!`);
+      } else {
+        alert("❌ Error posting. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error submitting post:", err);
+      alert("❌ Error posting. Make sure backend is running!");
+    } finally {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  };
 }
 
-// Delete post
-async function deletePost(id) {
-  if(!confirm("Are you sure you want to delete this post?")) return;
-  await fetch(`${API}/${id}`, { method:"DELETE" });
-  loadPosts();
-}
+// ============================================
+// INITIALIZE APP
+// ============================================
 
-const sidebar = document.querySelector(".sidebar");
+renderSidebar();
+selectCountry("india");
 
-countryList.querySelectorAll("li").forEach(li => {
-  li.addEventListener("click", () => {
-    selectedRegion = li.getAttribute("data-region");
-    const color = countryColors[selectedRegion] || "#ff6b3c";
-
-    // Change main content and sidebar color
-    document.querySelector(".main-content").style.backgroundColor = color;
-    sidebar.style.backgroundColor = color;
-
-    loadPosts();
-  });
-});
-
-
-// Butterflies
-function createButterfly() {
-  const butterfly = document.createElement("div");
-  butterfly.className = "butterfly";
-  butterfly.style.left = Math.random()*window.innerWidth + "px";
-  butterfly.style.backgroundColor = `hsl(${Math.random()*360}, 80%, 60%)`;
-  butterfly.style.animation = `floatButterfly ${5 + Math.random()*5}s linear infinite`;
-  document.getElementById("butterflies").appendChild(butterfly);
-  setTimeout(()=>{ butterfly.remove(); }, 10000);
-}
-setInterval(createButterfly, 500);
-
-// Initial load
-loadPosts();
+// Update form button color on country change
+setInterval(() => {
+  const formBtn = document.querySelector('.post-form button');
+  if (formBtn && COUNTRIES[currentCountry]) {
+    formBtn.style.background = `linear-gradient(135deg, ${COUNTRIES[currentCountry].color}, ${COUNTRIES[currentCountry].color}dd)`;
+  }
+}, 100);
